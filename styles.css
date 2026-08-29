@@ -651,6 +651,14 @@ body.gameover-flash .modal-overlay {
 }
 
 /* Preview Grid */
+.preview-header, .custom-header {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    padding-bottom: 2px;
+}
+
 .preview-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);

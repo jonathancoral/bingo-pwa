@@ -572,6 +572,15 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
         previewTitleSpan.textContent = carton.id_interno;
         previewGrid.innerHTML = '';
         
+        // Headers B-I-N-G-O
+        const letras = ['B', 'I', 'N', 'G', 'O'];
+        letras.forEach(letra => {
+            const headerCell = document.createElement('div');
+            headerCell.classList.add('preview-header');
+            headerCell.textContent = letra;
+            previewGrid.appendChild(headerCell);
+        });
+        
         const missingSet = missingNumbers ? new Set(missingNumbers) : new Set();
         
         for (let r = 0; r < 5; r++) {
@@ -631,6 +640,15 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
             mask = window.engine.masks[state.modoJuego];
         }
         
+        // Headers B-I-N-G-O
+        const letras = ['B', 'I', 'N', 'G', 'O'];
+        letras.forEach(letra => {
+            const headerCell = document.createElement('div');
+            headerCell.classList.add('preview-header');
+            headerCell.textContent = letra;
+            modePreviewGrid.appendChild(headerCell);
+        });
+        
         for (let r = 0; r < 5; r++) {
             for (let c = 0; c < 5; c++) {
                 const cell = document.createElement('div');
@@ -648,6 +666,16 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
 
     function renderCustomGrid() {
         customGridConfig.innerHTML = '';
+        
+        // Headers B-I-N-G-O
+        const letras = ['B', 'I', 'N', 'G', 'O'];
+        letras.forEach(letra => {
+            const headerCell = document.createElement('div');
+            headerCell.classList.add('custom-header');
+            headerCell.textContent = letra;
+            customGridConfig.appendChild(headerCell);
+        });
+        
         for (let r = 0; r < 5; r++) {
             for (let c = 0; c < 5; c++) {
                 const cell = document.createElement('div');
