@@ -1,0 +1,21 @@
+{
+  "name": "Bingo PWA",
+  "short_name": "Bingo",
+  "description": "Una aplicación web progresiva para jugar Bingo 100% offline.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f4f4f6",
+  "theme_color": "#f4f4f6",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
