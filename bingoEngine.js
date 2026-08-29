@@ -207,6 +207,7 @@ class BingoEngine {
                     id_interno: startId + index,
                     serial_impreso: carton.serial_impreso || 'N/A',
                     estado: 'activo',
+                    victorias: 0,
                     matriz: carton.matriz
                 };
             });

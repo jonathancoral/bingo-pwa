@@ -256,6 +256,11 @@ textarea:focus {
 .form-group {
     margin-bottom: 25px;
 }
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
 
 .select-wrapper {
     position: relative;
@@ -500,13 +505,24 @@ select:focus {
 
 .bingo-winner {
     padding: 40px 20px;
-    border: 3px solid var(--success-color);
-    box-shadow: var(--shadow-lg);
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+    animation: bingoBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    transform: scale(0.8);
+    opacity: 0;
 }
+
+@keyframes bingoBounce {
+    0% { transform: scale(0.8); opacity: 0; }
+    40% { transform: scale(1.05); opacity: 1; }
+    70% { transform: scale(0.98); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 .bingo-title {
     font-size: 3.5rem;
     margin-bottom: 5px;
-    color: var(--success-color);
+    color: var(--primary-color);
     text-shadow: none; /* Sin glow */
 }
 #bingo-card-info {
@@ -549,16 +565,28 @@ select:focus {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Animación Extrema Light Mode (Flash Background) */
-@keyframes extremeFeedback {
-    0%   { background-color: var(--bg-color); }
-    25%  { background-color: #d1fae5; } /* Verde claro */
-    50%  { background-color: var(--bg-color); }
-    75%  { background-color: #fee2e2; } /* Rojo claro */
-    100% { background-color: var(--bg-color); }
+/* Efecto Minimalista BINGO (Desaturar Fondo) */
+body.bingo-flash .modal-overlay,
+body.gameover-flash .modal-overlay {
+    backdrop-filter: blur(10px) grayscale(100%);
+    -webkit-backdrop-filter: blur(10px) grayscale(100%);
+    background: rgba(0,0,0,0.75);
 }
-body.bingo-flash {
-    animation: extremeFeedback 0.3s infinite;
+
+@keyframes saladoFall {
+    0% { transform: translateY(-10vh) rotate(-15deg); opacity: 1; }
+    25% { transform: translateY(20vh) rotate(15deg); opacity: 0.9; }
+    50% { transform: translateY(50vh) rotate(-10deg); opacity: 0.8; }
+    75% { transform: translateY(80vh) rotate(10deg); opacity: 0.5; }
+    100% { transform: translateY(110vh) rotate(-5deg); opacity: 0; }
+}
+
+.salado-particle {
+    position: fixed;
+    top: -50px;
+    z-index: 10001; /* Encima del modal */
+    pointer-events: none;
+    animation: saladoFall linear forwards;
 }
 
 /* Predictive Bar */
@@ -657,3 +685,11 @@ body.bingo-flash {
     color: white;
     font-weight: bold;
 }
+
+/* Switch Toggle CSS */
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--card-border); transition: .4s; border-radius: 24px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: var(--shadow-sm); }
+input:checked + .slider { background-color: var(--primary-color); }
+input:checked + .slider:before { transform: translateX(20px); }

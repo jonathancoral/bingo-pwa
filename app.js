@@ -7,7 +7,10 @@ const ICONS = {
     alert: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 5px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
     trash: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 5px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
     skull: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 5px;"><circle cx="9" cy="12" r="1"></circle><circle cx="15" cy="12" r="1"></circle><path d="M8 20v2h8v-2"></path><path d="m12.5 17-.5-1-.5 1h1z"></path><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"></path></svg>',
-    star: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>'
+    star: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+    crown: '<svg width="18" height="18" viewBox="0 0 24 24" fill="#fbbf24" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-left: 2px;"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg>',
+    fire: '<svg width="18" height="18" viewBox="0 0 24 24" fill="#f97316" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 5px;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>',
+    ghost: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10h.01"></path><path d="M15 10h.01"></path><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"></path></svg>'
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,7 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
         balotasCantadas: [],
         historialBalotas: [],
         currentView: 'ingest-module',
-        columnaFijaIndex: null
+        columnaFijaIndex: null,
+        keepWinnersParticipating: true,
+        ganadoresRondaActual: []
     };
 
     let wakeLock = null;
@@ -44,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Módulo Configuración
     const configModule = document.getElementById('config-module');
     const gameModeSelect = document.getElementById('game-mode');
+    const toggleKeepWinners = document.getElementById('toggle-keep-winners');
     const customGridConfig = document.getElementById('custom-grid-config');
     const customGridContainer = document.getElementById('custom-grid-container');
     const colFijaConfig = document.getElementById('columna-fija-config');
@@ -139,6 +145,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (saved) {
             try {
                 let parsed = JSON.parse(saved);
+                // Asegurar que keepWinnersParticipating exista en estados antiguos
+                if (parsed.keepWinnersParticipating === undefined) {
+                    parsed.keepWinnersParticipating = true;
+                }
                 state = { ...state, ...parsed };
                 balotasSet = new Set(state.balotasCantadas);
             } catch(e) {
@@ -172,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (state.currentView === 'config-module') {
             gameModeSelect.value = state.modoJuego;
+            toggleKeepWinners.checked = state.keepWinnersParticipating;
             toggleCustomGrid();
             
             // Sync botones columna fija
@@ -346,6 +357,11 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
             toggleCustomGrid();
             saveState();
         });
+
+        toggleKeepWinners.addEventListener('change', (e) => {
+            state.keepWinnersParticipating = e.target.checked;
+            saveState();
+        });
         
         btnCols.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -384,8 +400,15 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
         function startNewGame() {
             balotasSet.clear();
             state.historialBalotas = [];
+            state.ganadoresRondaActual = [];
             nearWinIds.clear();
-            state.cartones.forEach(c => c.estado = 'activo');
+            state.cartones.forEach(c => {
+                if (!state.keepWinnersParticipating && c.victorias && c.victorias > 0) {
+                    c.estado = 'inactivo';
+                } else {
+                    c.estado = 'activo';
+                }
+            });
             saveState();
             changeView('gameplay-module');
         }
@@ -401,7 +424,9 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
                     columnaFijaIndex: null,
                     mascaraPersonalizada: Array(5).fill(null).map(() => Array(5).fill(false)),
                     historialBalotas: [],
-                    currentView: 'ingest-module'
+                    currentView: 'ingest-module',
+                    keepWinnersParticipating: true,
+                    ganadoresRondaActual: []
                 };
                 balotasSet.clear();
                 nearWinIds.clear();
@@ -438,7 +463,13 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
                 balotasSet.clear();
                 state.historialBalotas = [];
                 nearWinIds.clear();
-                state.cartones.forEach(c => c.estado = 'activo');
+                state.cartones.forEach(c => {
+                    if (!state.keepWinnersParticipating && c.victorias && c.victorias > 0) {
+                        c.estado = 'inactivo';
+                    } else {
+                        c.estado = 'activo';
+                    }
+                });
                 saveState();
                 renderPanelNumericoState();
                 updateSaladoCounter();
@@ -448,7 +479,14 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
         });
         
         // --- MODAL BINGO Y PREVIEW ---
-        btnKeepPlaying.addEventListener('click', closeModal);
+        btnKeepPlaying.addEventListener('click', () => {
+            closeModal();
+            updateSaladoCounter();
+            updatePredictiveBar();
+            renderPanelNumericoState();
+            renderCardsList();
+        });
+        
         btnPreviewClose.addEventListener('click', () => previewModal.classList.remove('show'));
         
         btnGameoverClose.addEventListener('click', () => {
@@ -457,17 +495,25 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
         });
         
         btnDeactivate.addEventListener('click', () => {
-            if (pendingBingoCard) {
-                const arr = Array.isArray(pendingBingoCard) ? pendingBingoCard : [pendingBingoCard];
-                arr.forEach(winCard => {
-                    const idx = state.cartones.findIndex(c => c.id_interno === winCard.id_interno);
-                    if (idx !== -1) {
-                        state.cartones[idx].estado = 'inactivo';
-                    }
-                });
-                saveState();
-            }
             closeModal();
+            // Limpiar ronda
+            balotasSet.clear();
+            state.historialBalotas = [];
+            state.ganadoresRondaActual = [];
+            nearWinIds.clear();
+            state.cartones.forEach(c => {
+                if (!state.keepWinnersParticipating && c.victorias && c.victorias > 0) {
+                    c.estado = 'inactivo';
+                } else {
+                    c.estado = 'activo';
+                }
+            });
+            saveState();
+            renderPanelNumericoState();
+            updateSaladoCounter();
+            updatePredictiveBar();
+            renderCardsList();
+            showToast(`${ICONS.trash} Ronda limpia y finalizada.`);
         });
     }
 
@@ -490,8 +536,17 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
         state.cartones.forEach(c => {
             const li = document.createElement('li');
             
+            let crownsHtml = '';
+            if (c.victorias && c.victorias > 0) {
+                if (c.victorias <= 3) {
+                    crownsHtml = ICONS.crown.repeat(c.victorias);
+                } else {
+                    crownsHtml = ICONS.crown.repeat(3) + '<span style="font-size:0.75rem; font-weight:bold; color:var(--primary-color);">+' + (c.victorias - 3) + '</span>';
+                }
+            }
+            
             const infoSpan = document.createElement('span');
-            infoSpan.innerHTML = `ID: <b style="color:var(--primary-color)">${c.id_interno}</b> <small>(Serial: ${c.serial_impreso})</small>`;
+            infoSpan.innerHTML = `ID: <b style="color:var(--primary-color)">${c.id_interno}</b> <small>(Serial: ${c.serial_impreso})</small>${crownsHtml}`;
             infoSpan.style.cursor = 'pointer';
             infoSpan.addEventListener('click', () => showPreviewModal(c));
             
@@ -606,6 +661,7 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
                         cell.classList.add('selected');
                     }
                     cell.addEventListener('click', () => {
+                        if (balotasSet.size > 0) return;
                         state.mascaraPersonalizada[r][c] = !state.mascaraPersonalizada[r][c];
                         cell.classList.toggle('selected');
                         saveState();
@@ -678,16 +734,39 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
     
     function updateColumnsVisibility() {
         const allCols = ['col-B', 'col-I', 'col-N', 'col-G', 'col-O'];
-        let colsToKeep = allCols;
+        let colsToKeep = [];
         
-        if (state.modoJuego === 'cuatro_esquinas') {
-            colsToKeep = ['col-B', 'col-O'];
-        } else if (state.modoJuego === 'cuadro_pequeno') {
-            colsToKeep = ['col-I', 'col-N', 'col-G'];
-        } else if (state.modoJuego === 'x') {
-            colsToKeep = ['col-B', 'col-I', 'col-G', 'col-O']; // N no juega
-        } else if (state.modoJuego === 'columna_fija' && state.columnaFijaIndex !== null) {
-            colsToKeep = [allCols[state.columnaFijaIndex]];
+        if (state.modoJuego === 'tabla_llena' || state.modoJuego === 'salado') {
+            colsToKeep = allCols;
+        } else {
+            let mask = null;
+            if (state.modoJuego === 'columna_fija' && state.columnaFijaIndex !== null) {
+                mask = window.engine.getColumnaFijaMask(state.columnaFijaIndex);
+            } else if (state.modoJuego === 'personalizado') {
+                mask = state.mascaraPersonalizada;
+            } else if (window.engine.masks[state.modoJuego]) {
+                mask = window.engine.masks[state.modoJuego];
+            }
+            
+            if (mask) {
+                for (let c = 0; c < 5; c++) {
+                    let colHasCell = false;
+                    for (let r = 0; r < 5; r++) {
+                        // Ignorar el centro (2,2) ya que es libre y no requiere balota
+                        if (r === 2 && c === 2) continue; 
+                        
+                        if (mask[r][c]) {
+                            colHasCell = true;
+                            break;
+                        }
+                    }
+                    if (colHasCell) {
+                        colsToKeep.push(allCols[c]);
+                    }
+                }
+            } else {
+                colsToKeep = allCols; // Fallback
+            }
         }
         
         allCols.forEach(id => {
@@ -724,6 +803,7 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
                 gameoverModal.classList.add('show');
                 document.body.classList.add('gameover-flash');
                 showToast(`${ICONS.skull} Todos tus cartones fueron eliminados.`);
+                triggerSaladoRain();
             }
             
         } else {
@@ -753,10 +833,33 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
                     }
                 });
             });
+        } else {
+            // Evaluar si algún ganador de la ronda actual perdió su condición de victoria por deshacer un número
+            if (state.ganadoresRondaActual && state.ganadoresRondaActual.length > 0) {
+                let yaNoGanan = [];
+                state.ganadoresRondaActual.forEach(id => {
+                    const carton = state.cartones.find(c => c.id_interno === id);
+                    if (carton) {
+                        const isWinning = window.engine.checkWin(carton.matriz, balotasSet, state.modoJuego, state.mascaraPersonalizada, state.columnaFijaIndex);
+                        if (!isWinning) {
+                            yaNoGanan.push(carton);
+                        }
+                    }
+                });
+                
+                yaNoGanan.forEach(c => {
+                    c.victorias = Math.max(0, (c.victorias || 0) - 1);
+                    c.estado = 'activo';
+                    state.ganadoresRondaActual = state.ganadoresRondaActual.filter(id => id !== c.id_interno);
+                    showToast(`${ICONS.check} Cartón #${c.id_interno} restaurado`);
+                });
+                
+                if (yaNoGanan.length > 0) {
+                    saveState();
+                    renderCardsList();
+                }
+            }
         }
-        // Para modos no salados, balotasSet ya está actualizado y el predictive bar se basa en él,
-        // no necesitamos reactivar cartones inactivos porque el bingo modal da la opción de desactivarlos, 
-        // pero por simplicidad dejaremos que sigan como estaban.
     }
 
     function updateSaladoCounter() {
@@ -811,7 +914,7 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
                     // Toast Notification for Distance 1
                     if (distInfo.missingCount === 1 && !nearWinIds.has(c.id_interno)) {
                         nearWinIds.add(c.id_interno);
-                        showToast(`🔥 ¡Al Cartón #${c.id_interno} le falta 1 balota!`);
+                        showToast(`${ICONS.fire} ¡Al Cartón #${c.id_interno} le falta 1 balota!`);
                     }
                 } else if (distInfo && distInfo.missingCount > 1) {
                     // Si se alejó (por ej un deshacer), lo removemos
@@ -854,17 +957,30 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
     
     function triggerBingoModal(cartones) {
         pendingBingoCard = cartones;
+        const winners = Array.isArray(cartones) ? cartones : [cartones];
         
         if (Array.isArray(cartones) && cartones.length > 1) {
             // Múltiples ganadores
             bingoCardInfoSpans[0].textContent = cartones.map(c => c.id_interno).join(', ');
             bingoCardInfoSpans[1].textContent = "Múltiples";
         } else {
-            // Un solo ganador (puede venir como array de 1 o como objeto dependiendo del modo)
-            const winner = Array.isArray(cartones) ? cartones[0] : cartones;
+            // Un solo ganador
+            const winner = winners[0];
             bingoCardInfoSpans[0].textContent = winner.id_interno;
             bingoCardInfoSpans[1].textContent = winner.serial_impreso;
         }
+        
+        // Sumar victoria y desactivar obligatoriamente para esta ronda
+        if (!state.ganadoresRondaActual) state.ganadoresRondaActual = [];
+        winners.forEach(winCard => {
+            const idx = state.cartones.findIndex(c => c.id_interno === winCard.id_interno);
+            if (idx !== -1) {
+                state.cartones[idx].victorias = (state.cartones[idx].victorias || 0) + 1;
+                state.cartones[idx].estado = 'inactivo';
+                state.ganadoresRondaActual.push(state.cartones[idx].id_interno);
+            }
+        });
+        saveState();
         
         bingoModal.classList.add('show');
         document.body.classList.add('bingo-flash');
@@ -884,5 +1000,38 @@ Si el cartón no tiene número de serie visible, deja "serial_impreso" como un s
         bingoModal.classList.remove('show');
         document.body.classList.remove('bingo-flash');
         pendingBingoCard = null;
+    }
+
+    function triggerSaladoRain() {
+        const particleCount = 30;
+        const colors = ['var(--text-color)', 'var(--secondary-text)', 'var(--card-border)'];
+        const shapes = [ICONS.skull, ICONS.ghost];
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('salado-particle');
+            
+            // Elegir forma y color
+            particle.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
+            particle.style.color = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Randomizar posición, tamaño y duración
+            const size = Math.random() * 2.5 + 0.8; // Más variabilidad: Entre 0.8x y 3.3x
+            particle.style.transform = `scale(${size})`;
+            particle.style.left = Math.random() * 100 + 'vw';
+            
+            const duration = Math.random() * 2 + 2; // Entre 2s y 4s
+            particle.style.animationDuration = `${duration}s`;
+            
+            const delay = Math.random() * 1;
+            particle.style.animationDelay = `${delay}s`;
+            
+            document.body.appendChild(particle);
+            
+            // Limpiar al terminar
+            setTimeout(() => {
+                particle.remove();
+            }, (duration + delay) * 1000);
+        }
     }
 });
